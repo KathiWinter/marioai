@@ -35,10 +35,10 @@ def get_action():
         return env.NOTHING
 
 #initialize data arrays
-observations = np.empty(shape=(0))
-actions = np.empty(shape=(0))
-rewards = np.empty(shape=(0))
-terminals = np.empty(shape=(0))
+observations = []
+actions = []
+rewards = []
+terminals = []
 
 #play loop: execute actions from keyboard input in the environment
 while True:
@@ -51,18 +51,18 @@ while True:
         print('action', action)
         next_state, reward, done, info = env.step(action)
         
-        np.append(observations, next_state)
-        np.append(actions, action)
-        np.append(rewards, reward)
-        np.append(terminals, done)
+        observations.append(next_state)
+        actions.append(action)
+        rewards.append(reward)
+        terminals.append(done)
      
         total_reward += reward
 
     print(f'finished episode, total_reward: {total_reward}')
     
     #create Markov-Decision-Process Dataset from collected data
-    dataset = MDPDataset(observations, actions, rewards, terminals)    
-    
+    dataset = MDPDataset(np.array(observations), np.array(actions), np.array(rewards), np.array(terminals))    
+    print(dataset.episodes[0].terminal)
     #save dataset as file
     dataset.dump('dataset.h5')
 
