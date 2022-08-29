@@ -8,7 +8,6 @@ import gym_marioai
 import numpy as np
 from os.path import exists
 from gym_marioai import levels
-from d3rlpy.dataset import MDPDataset
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", "--level", type=str, default="flatLevel")
@@ -89,12 +88,10 @@ while True:
         total_reward += reward
         
     #create Markov-Decision-Process Dataset from collected episode
-    datafile_name = "user" + str(args.user) + "_" + str(args.level) + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) + ".h5" 
+    datafile_name = "user" + str(args.user) + "_" + str(args.level) + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) 
     datapath = os.path.join("data", datafile_name)
-    dataset = MDPDataset(np.array(observations), np.array(actions), np.array(rewards), np.array(terminals))
-        
-    #save dataset in file path for episode
-    dataset.dump(datapath)
+    
+    data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
 
     print(f'finished episode, total_reward: {total_reward}')
     
