@@ -105,7 +105,7 @@ while True:
         
     #create Markov-Decision-Process Dataset from collected episode
     datafile_name = "user" + str(args.user) + "_" + level_str + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) 
-    datapath = os.path.join("data", datafile_name)
+    datapath = os.path.join("../data", datafile_name)
     
     data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
 
