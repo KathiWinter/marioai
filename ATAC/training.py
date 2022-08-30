@@ -3,10 +3,9 @@ import os
 import glob
 from d3rlpy.algos import DQN
 from d3rlpy.dataset import MDPDataset
-import torch
+from constants import DATAPATH
 
-
-dataset = MDPDataset.load('data/dataset.h5')
+dataset = MDPDataset.load(DATAPATH)
 
 dqn = DQN()
 log_dir="d3rlpy_logs"

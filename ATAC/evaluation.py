@@ -7,10 +7,11 @@ import numpy as np
 from os.path import exists
 from gym_marioai import levels
 from d3rlpy.dataset import MDPDataset
+from constants import DATAPATH
 import torch
 from d3rlpy.algos import DQN
 
-dataset = MDPDataset.load('data/dataset.h5')
+dataset = MDPDataset.load(DATAPATH)
 
 dqn = DQN()
 
