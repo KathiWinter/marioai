@@ -1,10 +1,11 @@
 import copy
 import d3rlpy
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 
 import numpy as np
 import torch
 from torch.optim import Optimizer
+
 
 from d3rlpy.gpu import Device
 from d3rlpy.models.builders import create_discrete_q_function
@@ -12,14 +13,14 @@ from d3rlpy.models.encoders import EncoderFactory
 from d3rlpy.models.optimizers import OptimizerFactory
 from d3rlpy.models.q_functions import QFunctionFactory
 from d3rlpy.models.torch import EnsembleDiscreteQFunction, EnsembleQFunction
+from d3rlpy.models.torch.q_functions.ensemble_q_function import _reduce_quantile_ensemble
 from d3rlpy.preprocessing import RewardScaler, Scaler
 from d3rlpy.torch_utility import TorchMiniBatch, hard_sync, torch_api, train_api
 from d3rlpy.algos.torch.base import TorchImplBase
 from d3rlpy.algos.torch.utility import DiscreteQFunctionMixin
-
+from d3rlpy.models.torch.q_functions.utility import pick_value_by_action
 
 class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
-    print(DiscreteQFunctionMixin)
     _learning_rate: float
     _optim_factory: OptimizerFactory
     _encoder_factory: EncoderFactory
@@ -104,9 +105,11 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
 
         self._optim.zero_grad()
 
-        q_tpn = self.compute_target(batch)
 
-        loss = self.compute_loss(batch, q_tpn)
+        q_tpn = self.compute_target(batch) #self.get_next_states(batch) # q_tpn = self.compute_target(batch) # q_tpn = self.compute_next_states(batch) 
+        q_cpn = self.compute_next_states(batch)
+
+        loss = max(self.compute_loss(batch, q_tpn), self.compute_loss(batch, q_cpn))
 
         loss.backward()
         self._optim.step()
@@ -116,7 +119,7 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
     def compute_loss(
         self,
         batch: TorchMiniBatch,
-        q_tpn: torch.Tensor,
+        q_pn: torch.Tensor,
     ) -> torch.Tensor:
         assert self._q_func is not None
         assert self._optim is not None
@@ -124,7 +127,7 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
             batch.observations,
             batch.actions.long(),
             batch.rewards,
-            q_tpn,
+            q_pn,
             batch.terminals,
             self._gamma**batch.n_steps,
         )
@@ -134,11 +137,50 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         with torch.no_grad():
             next_actions = self._targ_q_func(batch.next_observations)
             max_action = next_actions.argmax(dim=1)
+            print(max_action)
             return self._targ_q_func.compute_target(
                 batch.next_observations,
                 max_action,
                 reduction="min",
             )
+            
+    def compute_next_states(self, batch: TorchMiniBatch) -> torch.Tensor:
+        assert self._q_func is not None
+        with torch.no_grad():
+            next_actions = self._q_func(batch.next_observations)
+            max_action = next_actions.argmax(dim=1)
+            print(max_action)
+            return self._q_func.compute_target(
+                batch.next_observations,
+                max_action,
+                reduction="min",
+            )
+            
+    def get_next_states(self, batch: TorchMiniBatch) -> torch.Tensor:
+        assert self._q_func is not None
+        with torch.no_grad():
+            x = batch.next_observations
+            lam: float = 0.75
+            reduction: str = "min"
+            next_actions = self._q_func(x)
+            max_action = next_actions.argmax(dim=1)
+            print(max_action)
+            values_list: List[torch.Tensor] = []
+            for q_func in self._q_func._q_funcs:
+                if max_action is None: 
+                    next_state = q_func.forward(x)
+                else:
+                    next_state = pick_value_by_action(q_func.forward(x), max_action, keepdim=True)
+                values_list.append(next_state.reshape(1, x.shape[0], -1))
+                
+            values = torch.cat(values_list, dim=0)
+            
+            if max_action is None:
+                print("actions are None! Please add something to the code.")
+
+            return _reduce_quantile_ensemble(values, reduction, lam=lam)
+                
+                
 
     def _predict_best_action(self, x: torch.Tensor) -> torch.Tensor:
         assert self._q_func is not None
