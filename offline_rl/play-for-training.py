@@ -81,7 +81,8 @@ while True:
     else:
         seed = get_seed()
         level_str = str(seed)
-        state = env.reset(seed=get_seed())
+        print("Playing on seed " + level_str)
+        state = env.reset(seed=seed)
         
     done = False
     total_reward = 0
