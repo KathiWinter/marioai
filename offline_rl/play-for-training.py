@@ -32,7 +32,7 @@ def get_level(input=args.level):
         return levels.flat_level
     elif input == "hardLevel":
         return levels.hard_level
-    elif input == "oneCLiffLevel":
+    elif input == "oneCliffLevel":
         return levels.one_cliff_level
     else:
         return None
