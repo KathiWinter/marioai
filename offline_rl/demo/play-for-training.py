@@ -32,7 +32,7 @@ def get_level(input=args.level):
         return levels.flat_level
     elif input == "hardLevel":
         return levels.hard_level
-    elif input == "oneCLiffLevel":
+    elif input == "oneCliffLevel":
         return levels.one_cliff_level
     else:
         return None
@@ -81,7 +81,8 @@ while True:
     else:
         seed = get_seed()
         level_str = str(seed)
-        state = env.reset(seed=get_seed())
+        print("Playing on seed " + level_str)
+        state = env.reset(seed=seed)
         
     done = False
     total_reward = 0
