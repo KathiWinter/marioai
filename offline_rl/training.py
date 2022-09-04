@@ -1,13 +1,15 @@
 #Demo Training with d3rlpy.dqn to test dataset
 import os
 import glob
-from d3rlpy.algos import DQN
+# use the d3rlpy DQN algorithm instead of our CDQN algorithm
+#from d3rlpy.algos import DQN
+from cdqn import CDQN
 from d3rlpy.dataset import MDPDataset
 from constants import DATAPATH
 
 dataset = MDPDataset.load(DATAPATH)
 
-dqn = DQN()
+dqn = CDQN()
 log_dir="d3rlpy_logs"
 
 #train with the given dataset
