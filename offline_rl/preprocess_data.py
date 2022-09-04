@@ -5,6 +5,8 @@ from os.path import exists
 from d3rlpy.dataset import MDPDataset
 from constants import DATAPATH
 
+counter = 0
+
 for file in glob.glob(os.path.join('data/', '*.npz')):
   episode_data = np.load(file)
   
@@ -20,5 +22,7 @@ for file in glob.glob(os.path.join('data/', '*.npz')):
       dataset = MDPDataset.load(DATAPATH)
       dataset.append(np.array(observations), np.array(actions), np.array(rewards), np.array(terminals))
         
+  counter += 1
+  print(counter)
   #save dataset in file path for episode
   dataset.dump(DATAPATH)

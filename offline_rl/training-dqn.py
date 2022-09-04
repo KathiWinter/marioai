@@ -2,14 +2,14 @@
 import os
 import glob
 # use the d3rlpy DQN algorithm instead of our CDQN algorithm
-#from d3rlpy.algos import DQN
-from cdqn import CDQN
+from d3rlpy.algos import DQN
 from d3rlpy.dataset import MDPDataset
 from constants import DATAPATH
 
+
 dataset = MDPDataset.load(DATAPATH)
 
-dqn = CDQN()
+dqn = DQN()
 log_dir="d3rlpy_logs"
 
 #train with the given dataset
@@ -17,7 +17,7 @@ log_dir="d3rlpy_logs"
 #n_epochs: number of epochs to train (one epoch contains a complete pass through the training dataset)
 #save_interval: interval to save parameters (save model after x epochs)
 #shuffle: flag to shuffle transitions on each epoch (different data combinations prevent overfitting)
-dqn.fit(dataset, eval_episodes=dataset,n_epochs=100, logdir=log_dir, save_interval=50, shuffle=True)
+dqn.fit(dataset, eval_episodes=dataset.episodes, n_epochs=100, logdir=log_dir, save_interval=100, shuffle=True)
 
 #use this instead of dqn.fit when dqn.fit() has already been run
 #dqn.build_with_dataset(dataset)
