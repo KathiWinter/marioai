@@ -12,7 +12,7 @@ from gym_marioai import levels
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-u", "--user", type=int, default=0) #0=testuser
+parser.add_argument("-l", "--level", type=str)
 parser.add_argument("-s", "--seed", default=0)
 args = parser.parse_args()
 
@@ -74,55 +74,54 @@ def get_random_action():
         return env.NOTHING
 
 
-if __name__ == '__main__':
     
-    all_actions = (0,1,2,3,4,5,6,7,8,9,10,11,12)
+all_actions = (0,1,2,3,4,5,6,7,8,9,10,11,12)
     
-    env = gym.make('Marioai-v0', render=True,
-                compact_observation=False, #this must stay false for proper saving in dataset
-                enabled_actions=all_actions,
-                rf_width=20, rf_height=10)
+env = gym.make('Marioai-v0', render=True,
+            compact_observation=False, #this must stay false for proper saving in dataset
+            enabled_actions=all_actions,
+            rf_width=20, rf_height=10)
 
-    level = get_level()
+level = get_level()
 
-    while True:
-        #new episode
-        if level != None:
-            level_str = str(args.level)
-            state = env.reset(level_path=level)
-        else:
-            seed = get_seed()
-            level_str = str(seed)
-            print("Playing on seed " + level_str)
-            state = env.reset(seed=seed)
+while True:
+    #new episode
+    if level != None:
+        level_str = str(args.level)
+        state = env.reset(level_path=level)
+    else:
+        seed = get_seed()
+        level_str = str(seed)
+        print("Playing on seed " + level_str)
+        state = env.reset(seed=seed)
         
-        done = False
-        total_reward = 0
+    done = False
+    total_reward = 0
     
-        #initialize data arrays with initial states for each episode
-        observations = [state]
-        actions = [12] #nothing
-        rewards = [0]
-        terminals = [done]
+    #initialize data arrays with initial states for each episode
+    observations = [state]
+    actions = [12] #nothing
+    rewards = [0]
+    terminals = [done]
 
-        while not done:
-            action = get_random_action()
-            next_state, reward, done, info = env.step(action)
+    while not done:
+        action = get_random_action()
+        next_state, reward, done, info = env.step(action)
         
-            observations.append(next_state)
-            actions.append(action)
-            rewards.append(reward)
-            terminals.append(done)
+        observations.append(next_state)
+        actions.append(action)
+        rewards.append(reward)
+        terminals.append(done)
      
-            total_reward += reward
+        total_reward += reward
         
-        #create Markov-Decision-Process Dataset from collected episode
-        datafile_name = "random_generated" + "_" + level_str + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) 
-        datapath = os.path.join("../data/random_Generated_Episode", datafile_name)
+    #create Markov-Decision-Process Dataset from collected episode
+    datafile_name = "random_generated" + "_" + level_str + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) 
+    datapath = os.path.join("../data/random_Generated_Episode", datafile_name)
     
-        data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
+    data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
 
-        print(f'finished episode, total_reward: {total_reward}')
+    print(f'finished episode, total_reward: {total_reward}')
 
 
 
