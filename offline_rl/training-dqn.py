@@ -17,7 +17,7 @@ log_dir="d3rlpy_logs"
 #n_epochs: number of epochs to train (one epoch contains a complete pass through the training dataset)
 #save_interval: interval to save parameters (save model after x epochs)
 #shuffle: flag to shuffle transitions on each epoch (different data combinations prevent overfitting)
-dqn.fit(dataset, eval_episodes=dataset.episodes, n_epochs=100, logdir=log_dir, save_interval=100, shuffle=True)
+dqn.fit(dataset, eval_episodes=dataset.episodes, n_epochs=30, logdir=log_dir, save_interval=10, shuffle=True)
 
 #use this instead of dqn.fit when dqn.fit() has already been run
 #dqn.build_with_dataset(dataset)
