@@ -13,19 +13,18 @@ from d3rlpy.metrics.scorer import td_error_scorer
 
 dataset = MDPDataset.load(DATAPATH)
 
-cdqn = CDQN(n_steps=100, gamma=0.99, batch_size=264, target_update_interval=10)
+cdqn = CDQN(n_steps=1, gamma=0.8, batch_size=264, target_update_interval=4)
 log_dir="d3rlpy_logs"
 
 train_episodes, test_episodes = train_test_split(dataset, test_size=0.2) 
 
-td_error = td_error_scorer(cdqn, test_episodes)
 
 #train with the given dataset
 #eval_episodes: list of episodes to train
 #n_epochs: number of epochs to train (one epoch contains a complete pass through the training dataset)
 #save_interval: interval to save parameters (save model after x epochs)
 #shuffle: flag to shuffle transitions on each epoch (different data combinations prevent overfitting)
-cdqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=1, logdir=log_dir, save_interval=1, shuffle=True, scorers={'td_error': td_error_scorer})
+cdqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=10, logdir=log_dir, save_interval=1, shuffle=True)
 
 #use this instead of cdqn.fit when cdqn.fit() has already been run
 #cdqn.build_with_dataset(dataset)
