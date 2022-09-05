@@ -45,33 +45,22 @@ def get_seed(input=args.seed):
         return int(input)
 
 def get_random_action():
-    rand = random.randint(0, 12)
+    rand = random.randint(0, 6)
     if rand == 0:
-        return env.LEFT
+        return env.JUMP
     elif rand == 1:
-        return env.RIGHT
+        return env.SPEED_RIGHT
     elif rand == 2:
-        return env.UP
+        return env.SPEED_LEFT
     elif rand == 3:
         return env.DOWN
     elif rand == 4:
-        return env.JUMP
+        return env.SPPED_JUMP_RIGHT
     elif rand == 5:
-        return env.SPEED_JUMP
-    elif rand == 6:
-        return env.SPEED_RIGHT
-    elif rand == 7:
-        return env.SPEED_LEFT
-    elif rand == 8:
-        return env.JUMP_RIGHT
-    elif rand == 9:
-        return env.JUMP_LEFT
-    elif rand == 10:
-        return env.SPEED_JUMP_RIGHT
-    elif rand == 11:
         return env.SPEED_JUMP_LEFT
-    elif rand == 12:
+    else:
         return env.NOTHING
+    
 
 
     
