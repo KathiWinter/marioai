@@ -5,9 +5,13 @@ import argparse
 import time
 
 import gym
-import gym_marioai
 import numpy as np
 from os.path import exists
+
+import sys
+#current_dir = os.path.dirname(os.path.abspath(__file__))
+#sys.path.append(os.path.join(current_dir, ".."))
+
 from gym_marioai import levels
 
 
@@ -44,24 +48,39 @@ def get_seed(input=args.seed):
     else:
         return int(input)
 
+#without LEFT action
 def get_random_action():
-    rand = random.randint(0, 6)
+    rand = random.randint(0, 4)
     if rand == 0:
         return env.JUMP
     elif rand == 1:
         return env.SPEED_RIGHT
     elif rand == 2:
-        return env.SPEED_LEFT
-    elif rand == 3:
         return env.DOWN
-    elif rand == 4:
-        return env.SPPED_JUMP_RIGHT
-    elif rand == 5:
-        return env.SPEED_JUMP_LEFT
+    elif rand == 3:
+        return env.SPEED_JUMP_RIGHT
     else:
         return env.NOTHING
-    
 
+'''
+#include LEFT action
+def get_random_action():
+    rand = random.randint(0, 45)
+    if rand >= 0 and rand < 3 :
+        return env.SPEED_LEFT
+    elif rand >= 3 and rand < 6:
+        return env.SPEED_JUMP_LEFT
+    elif rand >= 6 and rand < 10:
+        return env.DOWN
+    elif rand >= 10 and rand < 20:
+        return env.SPEED_RIGHT
+    elif rand >= 20 and rand < 30:
+        return env.SPEED_JUMP_RIGHT
+    elif rand >= 30 and rand < 40:
+        return env.JUMP
+    else:
+        return env.NOTHING
+'''
 
     
 all_actions = (0,1,2,3,4,5,6,7,8,9,10,11,12)
@@ -106,7 +125,9 @@ while True:
         
     #create Markov-Decision-Process Dataset from collected episode
     datafile_name = "random_generated" + "_" + level_str + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) 
-    datapath = os.path.join("../data/random_Generated_Episode", datafile_name)
+    
+    #datapath = os.path.join("../data/random_Generated_Episode", datafile_name)
+    datapath = os.path.join("../data/random_no_left_Generated_Episode", datafile_name)
     
     data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
 
