@@ -47,7 +47,18 @@ def get_seed(input=args.seed):
         return seed
     else:
         return int(input)
-
+'''
+#random action for cliff level
+def get_random_action():
+    rand = random.randint(0, 51)
+    if rand >= 0 and rand < 40:
+        return env.SPEED_RIGHT
+    elif rand >= 40 and rand < 50:
+        return env.SPEED_JUMP_RIGHT
+    else:
+        return env.NOTHING
+'''
+'''
 #without LEFT action
 def get_random_action():
     rand = random.randint(0, 4)
@@ -61,8 +72,8 @@ def get_random_action():
         return env.SPEED_JUMP_RIGHT
     else:
         return env.NOTHING
-
 '''
+
 #include LEFT action
 def get_random_action():
     rand = random.randint(0, 45)
@@ -80,7 +91,6 @@ def get_random_action():
         return env.JUMP
     else:
         return env.NOTHING
-'''
 
     
 all_actions = (0,1,2,3,4,5,6,7,8,9,10,11,12)
@@ -126,8 +136,8 @@ while True:
     #create Markov-Decision-Process Dataset from collected episode
     datafile_name = "random_generated" + "_" + level_str + "_" + "reward" + str(int(total_reward)) + "_" + str(round(time.time())) 
     
-    #datapath = os.path.join("../data/random_Generated_Episode", datafile_name)
-    datapath = os.path.join("../data/random_no_left_Generated_Episode", datafile_name)
+    datapath = os.path.join("../data/random_Generated_Episode", datafile_name)
+    #datapath = os.path.join("../data/random_no_left_Generated_Episode", datafile_name)
     
     data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
 
