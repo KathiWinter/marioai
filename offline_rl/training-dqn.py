@@ -2,7 +2,7 @@
 import os
 import glob
 import gym
-# use the d3rlpy DQN algorithm instead of our CDQN algorithm
+# use the d3rlpy DQN algorithm instead of our dqn algorithm
 from d3rlpy.algos import DQN
 from d3rlpy.dataset import MDPDataset
 from constants import DATAPATH
@@ -12,23 +12,57 @@ from d3rlpy.metrics.scorer import discounted_sum_of_advantage_scorer
 from d3rlpy.metrics.scorer import average_value_estimation_scorer
 from sklearn.model_selection import train_test_split
 
+
 dataset = MDPDataset.load(DATAPATH)
 
-dqn = DQN(verbose=False, n_steps=100, gamma=0.8, batch_size=264)
+#dqn = DQN(verbose=False, gamma=0.99, batch_size=128)
+dqn = DQN(verbose=False, gamma=0.99, batch_size=128)
 log_dir="d3rlpy_logs"
 
 
-train_episodes, test_episodes = train_test_split(dataset, test_size=0.2) 
+train_episodes, test_episodes = train_test_split(dataset, test_size=0.1) 
 
 #train with the given dataset
 #eval_episodes: list of episodes to train
 #n_epochs: number of epochs to train (one epoch contains a complete pass through the training dataset)
 #save_interval: interval to save parameters (save model after x epochs)
 #shuffle: flag to shuffle transitions on each epoch (different data combinations prevent overfitting)
-dqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=1, logdir=log_dir, save_interval=1, shuffle=True)
+dqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=50, logdir=log_dir, save_interval=1, shuffle=True)
 
-#use this instead of dqn.fit when dqn.fit() has already been run
-#dqn.build_with_dataset(dataset)
+train_episodes, test_episodes = train_test_split(dataset, test_size=0.1) 
+
+dqn.build_with_dataset(dataset)
+
+all_actions = (0,1,2,3,4,5,6,7,8,9,10,11,12)
+
+env = gym.make('Marioai-v0', render=False,
+               level_path=levels.hard_level,
+               compact_observation=False, #this must stay false for proper saving in dataset
+               enabled_actions=all_actions,
+               rf_width=20, rf_height=10)
+
+evaluate_scorer = evaluate_on_environment(env)
+
+
+#train with the given dataset
+#eval_episodes: list of episodes to train
+#n_epochs: number of epochs to train (one epoch contains a complete pass through the training dataset)
+#save_interval: interval to save parameters (save model after x epochs)
+#shuffle: flag to shuffle transitions on each epoch (different data combinations prevent overfitting)
+#dqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=15, logdir=log_dir, save_interval=1, shuffle=True)
+fitter = dqn.fitter(train_episodes, eval_episodes=test_episodes, n_epochs=20, shuffle=True, scorers={'environment': evaluate_scorer})
+
+metr = []
+for epoch, metrics in fitter:
+  metr.append(metrics.get('environment'))
+  if metrics.get('environment') > 160:
+    print("model found with environment metrics: " + str(metrics.get('environment')))
+    break
+
+with open('metrics.txt', 'w') as f:
+  for value in metr:
+    f.write(str(value))
+    f.write('\n')
 
 #fetch latest dataset
 latest_logs = max(glob.glob(os.path.join(log_dir, '*/')), key=os.path.getmtime)
