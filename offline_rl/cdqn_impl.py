@@ -105,7 +105,7 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         self._optim.zero_grad()
 
         q_tpn = self.compute_target(batch)
-        q_cpn = self.compute_next_state(batch, self._q_func._q_funcs[0], batch.next_observations)
+        q_cpn = self.compute_next_state(batch, self._q_func)
      
         loss = self.compute_loss(batch, q_tpn, q_cpn)
     
@@ -186,14 +186,14 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
                 reduction="min",
             )
 
-    def compute_next_state(self, batch: TorchMiniBatch, q_func: DiscreteMeanQFunction, observations: torch.Tensor) -> torch.Tensor:
+    def compute_next_state(self, batch: TorchMiniBatch, q_func: DiscreteMeanQFunction) -> torch.Tensor:
         assert self._q_func is not None
         one_hot = F.one_hot(self._q_func(batch.next_observations).argmax(dim=-1), num_classes=self.action_size)
-        value = (q_func.forward(observations) * one_hot.float()).sum(
+        next_state = (q_func.forward(batch.next_observations) * one_hot.float()).sum(
             dim=1, keepdim=True
         )
         
-        return value
+        return next_state
 
     def _predict_best_action(self, x: torch.Tensor) -> torch.Tensor:
         assert self._q_func is not None
