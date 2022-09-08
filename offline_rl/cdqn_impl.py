@@ -1,3 +1,4 @@
+from cmath import exp
 import copy
 from typing import Optional, Sequence, cast
 
@@ -104,14 +105,9 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         self._optim.zero_grad()
 
         q_tpn = self.compute_target(batch)
-        q_cpn = self.compute_next_state(batch)
+        q_cpn = self.compute_next_state(batch, self._q_func._q_funcs[0], batch.next_observations)
      
-        l_DQN = self.compute_loss(batch, q_tpn)
-        l_MSBE = self.compute_loss(batch, q_cpn)
-    
-              
-        loss = (torch.max(l_DQN, l_MSBE)).mean()
-    
+        loss = self.compute_loss(batch, q_tpn, q_cpn)
     
         loss.backward()
         self._optim.step()
@@ -122,22 +118,31 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         self,
         batch: TorchMiniBatch,
         q_tpn: torch.Tensor,
+        q_cpn: torch.Tensor,
     ) -> torch.Tensor:
         assert self._q_func is not None
         assert q_tpn.ndim == 2
-
+        
+        td_sum = torch.tensor(
+            0.0, dtype=torch.float32, device=batch.observations.device
+        )
+        
         for q_func in self._q_func._q_funcs: 
-            loss = q_func.compute_error(
-                batch.observations,
-                batch.actions.long(),
-                batch.rewards,
-                q_tpn,
-                batch.terminals,
-                self._gamma**batch.n_steps,
-                "none",
+            loss = self.compute_error(
+                observations=batch.observations,
+                actions=batch.actions.long(),
+                rewards=batch.rewards,
+                target=q_tpn,
+                current=q_cpn,
+                terminals=batch.terminals,
+                gamma=self._gamma**batch.n_steps, 
+                q_func=q_func,
             )  
             
-        return loss
+            td_sum += loss.mean()
+
+        return td_sum
+    
     
     def compute_error(
         self,
@@ -145,17 +150,27 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         actions: torch.Tensor,
         rewards: torch.Tensor,
         target: torch.Tensor,
+        current: torch.Tensor,
         terminals: torch.Tensor,
+        q_func: DiscreteMeanQFunction,
         gamma: float = 0.99,
     ) -> torch.Tensor:
         one_hot = F.one_hot(actions.view(-1), num_classes=self.action_size)
-        value = (self.forward(observations) * one_hot.float()).sum(
+        value = (q_func.forward(observations) * one_hot.float()).sum(
             dim=1, keepdim=True
         )
-        y = rewards + gamma * target * (1 - terminals)
-        diff = value - y
-        cond = diff.detach().abs() < 0.1
-        loss = torch.where(cond, 0.5 * diff**2, 0.1 * (diff.abs() - 0.5 * 0.1))
+        
+        y1 = rewards + gamma * target * (1 - terminals)
+        diff1 = (value - y1)**2
+        cond1 = diff1.detach().abs() < 0.1
+        loss1 = torch.where(cond1, 0.5 * diff1**2, 0.1 * (diff1.abs() - 0.5 * 0.1))
+        
+        y2 = rewards + gamma * current * (1 - terminals)
+        diff2 = (value - y2)**2
+        cond2 = diff2.detach().abs() < 0.1
+        loss2 = torch.where(cond2, 0.5 * diff2**2, 0.1 * (diff2.abs() - 0.5 * 0.1))
+        
+        loss = torch.maximum(loss1, loss2)
 
         return loss
 
@@ -170,20 +185,15 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
                 max_action,
                 reduction="min",
             )
-            
-    def forward(self, x: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
-          return cast(torch.Tensor, self._fc(self._encoder(x, action)))
-      
-    def compute_next_state(self, batch: TorchMiniBatch) -> torch.Tensor:
+
+    def compute_next_state(self, batch: TorchMiniBatch, q_func: DiscreteMeanQFunction, observations: torch.Tensor) -> torch.Tensor:
         assert self._q_func is not None
-        with torch.no_grad():
-            next_actions = self._q_func(batch.next_observations)
-            max_action = next_actions.argmax(dim=1)
-            return self._q_func.compute_target(
-                batch.next_observations,
-                max_action,
-                reduction="min",
-            )
+        one_hot = F.one_hot(self._q_func(batch.next_observations).argmax(dim=-1), num_classes=self.action_size)
+        value = (q_func.forward(observations) * one_hot.float()).sum(
+            dim=1, keepdim=True
+        )
+        
+        return value
 
     def _predict_best_action(self, x: torch.Tensor) -> torch.Tensor:
         assert self._q_func is not None
