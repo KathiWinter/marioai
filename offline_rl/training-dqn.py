@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 dataset = MDPDataset.load(DATAPATH)
 
 #dqn = DQN(verbose=False, gamma=0.99, batch_size=128)
-dqn = DQN(verbose=False, gamma=0.99, batch_size=128)
+dqn = DQN(verbose=False, gamma=0.8, batch_size=128)
 log_dir="d3rlpy_logs"
 
 
@@ -27,7 +27,7 @@ train_episodes, test_episodes = train_test_split(dataset, test_size=0.1)
 #n_epochs: number of epochs to train (one epoch contains a complete pass through the training dataset)
 #save_interval: interval to save parameters (save model after x epochs)
 #shuffle: flag to shuffle transitions on each epoch (different data combinations prevent overfitting)
-dqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=50, logdir=log_dir, save_interval=1, shuffle=True)
+dqn.fit(train_episodes, eval_episodes=test_episodes, n_epochs=20, logdir=log_dir, save_interval=1, shuffle=True)
 
 train_episodes, test_episodes = train_test_split(dataset, test_size=0.1) 
 

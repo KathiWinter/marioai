@@ -61,18 +61,18 @@ def get_random_action():
 '''
 #without LEFT action
 def get_random_action():
-    rand = random.randint(0, 4)
+    rand = random.randint(0, 3)
     if rand == 0:
         return env.JUMP
     elif rand == 1:
         return env.SPEED_RIGHT
     elif rand == 2:
-        return env.DOWN
-    elif rand == 3:
         return env.SPEED_JUMP_RIGHT
     else:
         return env.NOTHING
 '''
+
+
 
 #include LEFT action
 def get_random_action():
@@ -95,7 +95,7 @@ def get_random_action():
     
 all_actions = (0,1,2,3,4,5,6,7,8,9,10,11,12)
     
-env = gym.make('Marioai-v0', render=True,
+env = gym.make('Marioai-v0', render=False,
             compact_observation=False, #this must stay false for proper saving in dataset
             enabled_actions=all_actions,
             rf_width=20, rf_height=10)

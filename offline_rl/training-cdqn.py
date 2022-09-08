@@ -15,7 +15,7 @@ from d3rlpy.metrics.scorer import evaluate_on_environment
 
 dataset = MDPDataset.load(DATAPATH)
 
-cdqn = CDQN(gamma=0.99, batch_size=128)
+cdqn = CDQN(gamma=0.8, batch_size=128)
 log_dir="d3rlpy_logs"
 
 train_episodes, test_episodes = train_test_split(dataset, test_size=0.1) 
