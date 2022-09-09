@@ -105,7 +105,7 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         self._optim.zero_grad()
 
         q_tpn = self.compute_target(batch)
-        q_cpn = self.compute_next_state(batch, self._q_func._q_funcs[0], batch.next_observations)
+        q_cpn = self.compute_next_state(batch, self._q_func)
      
         loss = self.compute_loss(batch, q_tpn, q_cpn)
     
@@ -154,6 +154,7 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         terminals: torch.Tensor,
         q_func: DiscreteMeanQFunction,
         gamma: float = 0.99,
+        beta: float = 1.0
     ) -> torch.Tensor:
         one_hot = F.one_hot(actions.view(-1), num_classes=self.action_size)
         value = (q_func.forward(observations) * one_hot.float()).sum(
@@ -161,16 +162,16 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
         )
         
         y1 = rewards + gamma * target * (1 - terminals)
-        diff1 = (value - y1)**2
-        cond1 = diff1.detach().abs() < 0.1
-        loss1 = torch.where(cond1, 0.5 * diff1**2, 0.1 * (diff1.abs() - 0.5 * 0.1))
+        diff1 = (value - y1)
+        cond1 = diff1.detach().abs() < beta
+        loss_dqn = torch.where(cond1, 0.5 * diff1**2, beta * (diff1.abs() - 0.5 * beta))
         
         y2 = rewards + gamma * current * (1 - terminals)
-        diff2 = (value - y2)**2
-        cond2 = diff2.detach().abs() < 0.1
-        loss2 = torch.where(cond2, 0.5 * diff2**2, 0.1 * (diff2.abs() - 0.5 * 0.1))
+        diff2 = (value - y2)
+        cond2 = diff2.detach().abs() < beta
+        loss_msbe = torch.where(cond2, 0.5 * diff2**2, beta * (diff2.abs() - 0.5 * beta))
         
-        loss = torch.maximum(loss1, loss2)
+        loss = torch.maximum(loss_dqn, loss_msbe)
 
         return loss
 
@@ -186,14 +187,14 @@ class CDQNImpl(DiscreteQFunctionMixin, TorchImplBase):
                 reduction="min",
             )
 
-    def compute_next_state(self, batch: TorchMiniBatch, q_func: DiscreteMeanQFunction, observations: torch.Tensor) -> torch.Tensor:
+    def compute_next_state(self, batch: TorchMiniBatch, q_func: DiscreteMeanQFunction) -> torch.Tensor:
         assert self._q_func is not None
-        one_hot = F.one_hot(self._q_func(batch.next_observations).argmax(dim=-1), num_classes=self.action_size)
-        value = (q_func.forward(observations) * one_hot.float()).sum(
+        one_hot = F.one_hot(self._q_func(batch.next_observations).argmax(dim=1), num_classes=self.action_size)
+        next_state = (q_func.forward(batch.next_observations) * one_hot.float()).sum(
             dim=1, keepdim=True
         )
         
-        return value
+        return next_state
 
     def _predict_best_action(self, x: torch.Tensor) -> torch.Tensor:
         assert self._q_func is not None
