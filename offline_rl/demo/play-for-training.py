@@ -5,9 +5,7 @@ import argparse
 import time
 
 import gym
-import gym_marioai
 import numpy as np
-from os.path import exists
 from gym_marioai import levels
 
 parser = argparse.ArgumentParser()
@@ -52,26 +50,42 @@ env = gym.make('Marioai-v0', render=True,
                enabled_actions=all_actions,
                rf_width=20, rf_height=10)
 
+
+''' 
+0 LEFT
+1 RIGHT
+3 DOWN
+4 JUMP
+5 SPEED_JUMP
+6 SPEED_RIGHT
+7 SPEED_LEFT
+8 JUMP_RIGHT
+9 JUMP_LEFT
+10 SPEED_JUMP_RIGHT
+11 SPEED_JUMP:LEFT
+12 NOTHING
+'''
+
 def get_action():
     if keyboard.is_pressed('up'):
-        return env.JUMP
+        return env.JUMP #4
     elif keyboard.is_pressed('right'):
-        return env.SPEED_RIGHT
+        return env.SPEED_RIGHT #6
     elif keyboard.is_pressed('left'):
-        return env.SPEED_LEFT
+        return env.SPEED_LEFT #7
     elif keyboard.is_pressed('down'):
-        return env.DOWN
-    
-
+        return env.DOWN #3
+   
     elif keyboard.is_pressed('d'):
-        return env.SPEED_JUMP_RIGHT
+        return env.SPEED_JUMP_RIGHT #10
     elif keyboard.is_pressed('a'):
-        return env.SPEED_JUMP_LEFT
+        return env.SPEED_JUMP_LEFT #11
     
     else:
-        return env.NOTHING
+        return env.NOTHING #12
 
 level = get_level()
+counter = 0
 #play loop: execute actions from keyboard input in the environment
 while True:
     #new episode
@@ -109,9 +123,9 @@ while True:
     datapath = os.path.join("../data", datafile_name)
     
     data = np.savez(datapath, observations=observations, actions=actions, rewards=rewards, terminals=terminals)
-
+    counter += 1
     print(f'finished episode, total_reward: {total_reward}')
-    
+    print(counter)
 
 
 
