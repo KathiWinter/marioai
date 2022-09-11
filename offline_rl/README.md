@@ -35,6 +35,8 @@ if a dataset (.h5 file) already exists from the data the agent should train on, 
 if a dataset does not exist already, run `python preprocess_data.py` to create a new dataset .h5 file. Before running the script, change the constant `DATAPATH` to a new individual name. We agreed to name the files with their creation date, e.g. "dataset20220904.h5" for a dataset created on September 4th, 2022.
 The command will add all _.npz-files in the "data" folder to the .h5 dataset. If you would like to use different _.npz-files, change the folder path in line 10.
 
+You can also download ready-made datasets under the following link and add them to your project: https://drive.google.com/drive/folders/1mb82j67q6DG_lYNQlL3NSR3zHqozhgUj
+
 ### 2) train the agent
 
 to train a CDQN-agent, call the script `training-cdqn.py`. For a DQN-agent, use the `training-dqn.py` script accordingly.
