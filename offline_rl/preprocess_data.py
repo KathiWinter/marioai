@@ -10,7 +10,7 @@ if __name__=="__main__":
     cwd = os.getcwd()
     os.chdir(cwd + '/offline_rl')
 
-    episode_start = np.load('data/easy_level/random_generated_easyLevel_reward-51_1662398783.npz')
+    episode_start = np.load('data/random_seed/random_generated_88_reward185_1662735073.npz')
 
     observations_start = episode_start['observations']
     actions_start = episode_start["actions"]
@@ -26,7 +26,7 @@ if __name__=="__main__":
     dataset.dump(DATAPATH)
 
     counter = 0   
-    for file in glob.glob(os.path.join('data/easy_level/', '*.npz')):
+    for file in glob.glob(os.path.join('data/random_seed/', '*.npz')):
         episode_data = np.load(file)
   
         observations = episode_data["observations"]
