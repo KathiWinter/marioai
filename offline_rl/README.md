@@ -1,3 +1,12 @@
+# how to run the project
+
+To run the project, please install the following dependencis:
+`pip install keyboard`
+`pip install gym`
+`pip install d3rlpy` or `conda install d3rlpy`
+
+
+
 # how to play
 
 ### 1) run the server
