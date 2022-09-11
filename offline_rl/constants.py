@@ -9,5 +9,7 @@ DATAPATH = 'data/dataset_easy_level.h5'
 #DATAPATH = 'data/dataset_hard_level.h5'
 #DATAPATH = 'data/dataset_one_cliff_level.h5'
 
+#DATAPATH = 'data/dataset_random_seed.h5'
+
 #Choose the Policy you would like to load for evaluation
 POLICY = 'd3rlpy_logs\DQN_20220907000740\model_977.pt'
