@@ -46,3 +46,7 @@ the script will generate logs and models in the `log_dir` directory. From the la
 ### 3) evaluate the trained agent
 
 to evaluate a trained CDQN-agent, call the script `evaluation-cdqn.py`. or a DQN-agent, use the `evaluation-dqn.py` script accordingly (for the stochastic version of the CDQN-agent, use `evaluation-cdqn-stoch.py`). Before running the script, make sure that the `DATAPATH` in `constants.py` points to the correct dataset and that the script loads the correct model. To watch Mario run through the level, make sure that the parameter `render` in the `gym.make()` function is set to `True`. If you want to run many levels without needing to watch them, set `render` to `False` instead. The cumulated reward of an episode is printed out in the terminal window. 
+
+Our evaluations (including training data, videos and plots) can be found under this link: https://drive.google.com/drive/folders/168bFIhtkT2X-TNT5c0IPdzyjAhhXRXy6?usp=sharing
+
+![](https://media.giphy.com/media/k1eyXufeMRyrow6PNJ/giphy.gif)
