@@ -26,6 +26,8 @@ all other: user-ids
 
 `python play-for-training.py --level coinLevel --seed 188` When a level is specified, python runs specified level and ignores seed number.
 
+![](https://media.giphy.com/media/I2zHuH7w3hQ89aTCFa/giphy.gif)
+
 # how to train and evaluate the agent
 
 ### 1) get the data
