@@ -34,4 +34,4 @@ the script will generate logs and models. From the latest model, it will automat
 
 ### 3) evaluate the trained agent
 
-to evaluate a trained CDQN-agent, call the script `evaluation-cdqn.py`. or a DQN-agent, use the `evaluation-dqn.py` script accordingly. Before running the script, make sure that the constant `POLICY` in `constants.py` points to the right policy.pt file and the `DATAPATH` points to the correct dataset.
+to evaluate a trained CDQN-agent, call the script `evaluation-cdqn.py`. or a DQN-agent, use the `evaluation-dqn.py` script accordingly. Before running the script, make sure that the `DATAPATH` in `constants.py` points to the correct dataset and the script loads the correct model. 
