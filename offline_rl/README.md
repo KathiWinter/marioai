@@ -39,8 +39,8 @@ The command will add all _.npz-files in the "data" folder to the .h5 dataset. If
 
 to train a CDQN-agent, call the script `training-cdqn.py`. For a DQN-agent, use the `training-dqn.py` script accordingly.
 make sure that the `DATAPATH` points to the right dataset.
-the script will generate logs and models. From the latest model, it will automatically generate the policy and save it to `policy.pt`.
+the script will generate logs and models in the `log_dir` directory. From the latest model, it will automatically generate the policy and save it to `policy.pt`.
 
 ### 3) evaluate the trained agent
 
-to evaluate a trained CDQN-agent, call the script `evaluation-cdqn.py`. or a DQN-agent, use the `evaluation-dqn.py` script accordingly. Before running the script, make sure that the `DATAPATH` in `constants.py` points to the correct dataset and the script loads the correct model. 
+to evaluate a trained CDQN-agent, call the script `evaluation-cdqn.py`. or a DQN-agent, use the `evaluation-dqn.py` script accordingly (for the stochastic version of the CDQN-agent, use `evaluation-cdqn-stoch.py`). Before running the script, make sure that the `DATAPATH` in `constants.py` points to the correct dataset and that the script loads the correct model. To watch Mario run through the level, make sure that the parameter `render` in the `gym.make()` function is set to `True`. If you want to run many levels without needing to watch them, set `render` to `False` instead. The cumulated reward of an episode is printed out in the terminal window. 
