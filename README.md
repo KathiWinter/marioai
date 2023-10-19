@@ -1,3 +1,5 @@
+![](https://github.com/KathiWinter/marioai/blob/master/marioai.gif?raw=true)
+
 # marioai
 This is a clone of the MarioAI engine https://code.google.com/archive/p/marioai/downloads. Additionally all dependencies are managed via Maven.  
 gym_marioai is a python gym interface that communicates with a java wrapper around the original MarioAI engine. 
